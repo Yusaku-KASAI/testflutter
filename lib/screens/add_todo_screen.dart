@@ -54,6 +54,8 @@ class AddTodoScreenState extends State<AddTodoScreen> {
             children: [
               // タイトル：controllerで入力値を取り、validatorで未入力を弾こう
               TextFormField(
+                // 自動的に最初のフィールドにフォーカス
+                autofocus: true,
                 controller: _titleController,
                 decoration: const InputDecoration(
                   labelText: 'タスクのタイトル',
@@ -81,7 +83,8 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                   hintText: '3行以内で入力してください',
                   border: OutlineInputBorder(),
                 ),
-                maxLines: 3,
+                keyboardType: TextInputType.multiline, // 複数行入力用キーボード
+                maxLines: 3, // 最大3行まで表示
                 validator: (value) {
                   // 入力チェック
                   if (value == null || value.isEmpty) {
