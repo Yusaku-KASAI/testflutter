@@ -6,36 +6,35 @@ import '../services/todo_service.dart';
 class AddTodoScreen extends StatefulWidget {
   const AddTodoScreen({super.key, required this.todoService});
 
-  final TodoService todoService; // 保存できるようにTodoServiceを受け取ろう
+  final TodoService todoService;
 
   @override
   AddTodoScreenState createState() => AddTodoScreenState();
 }
 
 class AddTodoScreenState extends State<AddTodoScreen> {
-  // controllerをTextFormFieldに渡して、入力値を取り出せるようにしよう
+  // 入力内容を取り出すための controller（TextFormField に渡して使う）
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
   final TextEditingController _dateController =
-      TextEditingController(); // 選んだ期日を表示する
+      TextEditingController(); // 期日表示用
 
   DateTime? _selectedDate; // DatePickerで選んだ期日（Todo作成に使う）
 
-  // validate()で入力チェックを走らせるために使う
+  // validate() を実行するために Form の key を持っておこう
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool _isFormValid = false; // 全項目入力済みならtrue→作成ボタンを押せるようにする
+  bool _isFormValid = false; // 全項目入力済みならtrue→作成ボタンを押せる
 
   @override
   void initState() {
     super.initState();
-    // 入力が変わったら、ボタンの活性/非活性を更新しよう
+    // 入力が変わったら、作成ボタンの活性/非活性を更新しよう
     _titleController.addListener(_updateFormValid);
     _detailController.addListener(_updateFormValid);
     _dateController.addListener(_updateFormValid);
   }
 
-  // タイトル・詳細・期日が揃ったら、作成ボタンを押せるようにしよう
   void _updateFormValid() {
     setState(() {
       _isFormValid =
@@ -52,10 +51,11 @@ class AddTodoScreenState extends State<AddTodoScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey, // validate()でまとめて入力チェックできるように、Formにkeyを渡そう
+          // 入力フォームの枠組み
+          key: _formKey,
           child: Column(
             children: [
-              // タイトル：controllerで入力値を取り、validatorで未入力を弾こう
+              // タイトル入力フィールド
               TextFormField(
                 // 自動的に最初のフィールドにフォーカス
                 autofocus: true,
@@ -69,31 +69,24 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                   // 入力チェック
                   if (value == null || value.isEmpty) {
                     return 'タイトルを入力してください';
-                  } else if (value.length > 20) {
-                    return '20文字以内で入力してください';
                   }
                   return null;
                 },
               ),
 
-              const SizedBox(height: 16),
-
-              // 詳細：未入力チェックを入れて必須にしよう
+              const SizedBox(height: 16), // 余白
+              // 詳細入力フィールド
               TextFormField(
                 controller: _detailController,
                 decoration: const InputDecoration(
                   labelText: 'タスクの詳細',
-                  hintText: '3行以内で入力してください',
+                  hintText: '入力してください',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.multiline, // 複数行入力用キーボード
-                maxLines: 3, // 最大3行まで表示
+                maxLines: 3, // 複数行入力可能
                 validator: (value) {
-                  // 入力チェック
                   if (value == null || value.isEmpty) {
                     return '詳細を入力してください';
-                  } else if (value.split('\n').length > 3) {
-                    return '3行以内で入力してください';
                   }
                   return null;
                 },
@@ -101,17 +94,17 @@ class AddTodoScreenState extends State<AddTodoScreen> {
 
               const SizedBox(height: 16),
 
-              // 期日：タップしたらDatePickerを開き、選んだ日付を表示＆保持しよう
+              // 📅 期日入力フィールド（DatePicker）
               TextFormField(
                 controller: _dateController,
-                readOnly: true, // 直接入力ではなくDatePickerで選ばせよう
+                readOnly: true, // キーボードを表示しない
                 decoration: const InputDecoration(
                   labelText: '期日',
                   hintText: '年/月/日',
                   border: OutlineInputBorder(),
                 ),
                 onTap: () async {
-                  // 日付選択ダイアログを開く
+                  // 日付選択ダイアログ
                   DateTime? picked = await showDatePicker(
                     context: context,
                     initialDate: DateTime.now(),
@@ -119,13 +112,11 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                     lastDate: DateTime(2100),
                   );
                   if (picked != null) {
-                    // 選択した日付をコントローラに反映
-                    _selectedDate = picked;
-                    _dateController.text =
-                        '${picked.year}/${picked.month}/${picked.day}';
-
-                    // 期日を選んだあともフォーム状態を再評価
-                    _updateFormValid();
+                    setState(() {
+                      _selectedDate = picked;
+                      _dateController.text =
+                          '${picked.year}/${picked.month}/${picked.day}';
+                    });
                   }
                 },
                 validator: (value) {
@@ -137,7 +128,7 @@ class AddTodoScreenState extends State<AddTodoScreen> {
               ),
               const SizedBox(height: 24),
 
-              // 全項目が揃っているときだけ、作成ボタンを押せるようにしよう
+              // 作成ボタン
               ElevatedButton(
                 onPressed: _isFormValid ? _saveTodo : null,
                 style: ElevatedButton.styleFrom(
@@ -148,9 +139,10 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                     horizontal: 32,
                     vertical: 12,
                   ),
-                ),
+                ), // 入力完了で活性化
                 child: Text(
                   'タスクを追加',
+                  // テキストの色を変更
                   style: TextStyle(
                     color: _isFormValid ? Colors.white : Colors.grey,
                     fontSize: 18,
@@ -167,15 +159,14 @@ class AddTodoScreenState extends State<AddTodoScreen> {
   // タスク作成処理
   void _saveTodo() async {
     if (_formKey.currentState!.validate()) {
-      // 入力チェック
-      // 新しいTodoを作成
+      // 入力値から Todo を作り、保存してから前画面へ戻ろう
       Todo newTodo = Todo(
         title: _titleController.text,
         detail: _detailController.text,
         dueDate: _selectedDate!,
       );
 
-      // 既存リストを取得して追加する処理を追加  // ←追加
+      // 既存リストを読み込み → 追加 → 保存（端末に永続化）
       final todos = await widget.todoService.getTodos();
       todos.add(newTodo);
       await widget.todoService.saveTodos(todos);
@@ -183,14 +174,14 @@ class AddTodoScreenState extends State<AddTodoScreen> {
       // この画面がまだ非表示にならずに残ってるか確認
       if (!mounted) return;
 
-      // 前の画面へ「更新したよ」とだけ知らせる
-      Navigator.pop(context, true); // ←変更
+      // 前の画面へ「更新したよ（true）」を返して、リスト再読み込みのきっかけにしよう
+      Navigator.pop(context, true);
     }
   }
 
   @override
   void dispose() {
-    // 画面を閉じるときにcontrollerを破棄して、メモリリークを防ごう
+    // controllerを破棄して、メモリリークを防ごう
     _titleController.dispose();
     _detailController.dispose();
     _dateController.dispose();
@@ -200,7 +191,7 @@ class AddTodoScreenState extends State<AddTodoScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 初期表示でもボタン状態が合うように、最初に一度評価しておこう
+    // 初期表示時にもバリデーション
     _updateFormValid();
   }
 }
