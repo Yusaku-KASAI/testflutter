@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart'; // 日本語などロケール情報を読み込む
+import 'widgets/todo_card.dart'; // 追加: TodoCard をインポート
+import 'models/todo.dart'; // Todo モデルをインポート
 
-void main() => runApp(const MyApp());
+void main() async {
+  // DateFormat で日本語表記を使えるようロケールを初期化
+  await initializeDateFormatting('ja'); // 他言語の場合は"en"などに変更
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -12,29 +19,13 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('Todo App')),
         body: Center(
-          child: SizedBox(
-            height: 150,
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: const [
-                    Icon(Icons.radio_button_unchecked),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text('テストタイトル（仮）'),
-                        SizedBox(height: 4),
-                        Text('説明文（仮）'),
-                        SizedBox(height: 4),
-                        Text('12月30日(月)（仮）'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+          child: TodoCard(
+            todo: Todo(
+              title: 'テストタイトル',
+              detail: '説明文',
+              dueDate: DateTime.now(),
             ),
+            onToggle: () {}, // まだ状態管理はしないので空でOK（後の章で差し替える）
           ),
         ),
       ),
