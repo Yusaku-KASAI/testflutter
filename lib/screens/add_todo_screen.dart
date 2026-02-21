@@ -10,36 +10,35 @@ class AddTodoScreen extends StatefulWidget {
 }
 
 class AddTodoScreenState extends State<AddTodoScreen> {
-  // 入力内容を管理するコントローラー
+  // controllerをTextFormFieldに渡して、入力値を取り出せるようにしよう
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _detailController = TextEditingController();
   final TextEditingController _dateController =
-      TextEditingController(); // 期日表示用
+      TextEditingController(); // 選んだ期日を表示する
 
-  DateTime? _selectedDate; // 選択された期日
+  DateTime? _selectedDate; // DatePickerで選んだ期日（Todo作成に使う）
 
-  // フォームの入力検証用
+  // validate()で入力チェックを走らせるために使う
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool _isFormValid = false; // フォーム入力が完了しているか
+  bool _isFormValid = false; // 全項目入力済みならtrue→作成ボタンを押せるようにする
 
   @override
   void initState() {
     super.initState();
-    // テキストと期日の入力が変わるたびにチェック
+    // 入力が変わったら、ボタンの活性/非活性を更新しよう
     _titleController.addListener(_updateFormValid);
     _detailController.addListener(_updateFormValid);
     _dateController.addListener(_updateFormValid);
   }
 
-  /// 全入力欄が埋まっているかを判定し、
-  /// ボタンの活性状態（押せる/押せない）を更新するメソッド
+  // タイトル・詳細・期日が揃ったら、作成ボタンを押せるようにしよう
   void _updateFormValid() {
     setState(() {
       _isFormValid =
           _titleController.text.isNotEmpty &&
           _detailController.text.isNotEmpty &&
-          _selectedDate != null; // 期日が選択されているか
+          _selectedDate != null;
     });
   }
 
@@ -50,11 +49,10 @@ class AddTodoScreenState extends State<AddTodoScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          // 入力フォームの枠組み
-          key: _formKey,
+          key: _formKey, // validate()でまとめて入力チェックできるように、Formにkeyを渡そう
           child: Column(
             children: [
-              // タイトル入力フィールド
+              // タイトル：controllerで入力値を取り、validatorで未入力を弾こう
               TextFormField(
                 controller: _titleController,
                 decoration: const InputDecoration(
@@ -73,15 +71,9 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                 },
               ),
 
-              const SizedBox(height: 16), // 余白
-              // ❗️ タイトル入力フィールドを参考に、TextFormFieldを使用して詳細入力フィールドを実装してみましょう(ただ、以下のコメントの部分で仕様が異なります)
-              /**
-               *  1. ラベルとヒントテキストの文言
-               *  2. 三行を超えると入力できなくなる
-               *  3. 文字数制限はなし
-               */
+              const SizedBox(height: 16),
 
-              // 詳細入力フィールド
+              // 詳細：未入力チェックを入れて必須にしよう
               TextFormField(
                 controller: _detailController,
                 decoration: const InputDecoration(
@@ -103,10 +95,10 @@ class AddTodoScreenState extends State<AddTodoScreen> {
 
               const SizedBox(height: 16),
 
-              // 📅 期日入力フィールド（DatePicker）
+              // 期日：タップしたらDatePickerを開き、選んだ日付を表示＆保持しよう
               TextFormField(
                 controller: _dateController,
-                readOnly: true, // キーボードを表示しない
+                readOnly: true, // 直接入力ではなくDatePickerで選ばせよう
                 decoration: const InputDecoration(
                   labelText: '期日',
                   hintText: '年/月/日',
@@ -139,7 +131,7 @@ class AddTodoScreenState extends State<AddTodoScreen> {
               ),
               const SizedBox(height: 24),
 
-              // 作成ボタン
+              // 全項目が揃っているときだけ、作成ボタンを押せるようにしよう
               ElevatedButton(
                 onPressed: _isFormValid ? _saveTodo : null,
                 style: ElevatedButton.styleFrom(
@@ -150,12 +142,10 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                     horizontal: 32,
                     vertical: 12,
                   ),
-                ), // 入力完了で活性化
+                ),
                 child: Text(
                   'タスクを追加',
-                  // テキストの色を変更
                   style: TextStyle(
-                    // ❗️ 活性状態は白、非活性状態はグレーにテキストの色を設定してみましょう
                     color: _isFormValid ? Colors.white : Colors.grey,
                     fontSize: 18,
                   ),
@@ -168,26 +158,24 @@ class AddTodoScreenState extends State<AddTodoScreen> {
     );
   }
 
-  // タスク作成処理
+  // 入力チェック→Todo生成→前の画面へ返す、の流れを作ろう
   void _saveTodo() {
     if (_formKey.currentState!.validate()) {
-      // 入力チェック
-      // 新しいTodoを作成
       Todo newTodo = Todo(
         title: _titleController.text,
         detail: _detailController.text,
         dueDate: _selectedDate!,
       );
 
-      // ❗️ 作成したTodoデータを渡しながら、前画面に戻ってみましょう
+      // 作成したTodoを戻り値として渡そう（前画面で受け取れる）
       Navigator.pop(context, newTodo);
     }
   }
 
   @override
   void dispose() {
-    // 画面が閉じられる時の処理
-    _titleController.dispose(); // メモリの解放
+    // 画面を閉じるときにcontrollerを破棄して、メモリリークを防ごう
+    _titleController.dispose();
     _detailController.dispose();
     _dateController.dispose();
     super.dispose();
@@ -196,7 +184,7 @@ class AddTodoScreenState extends State<AddTodoScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // 初期表示時にもバリデーション
+    // 初期表示でもボタン状態が合うように、最初に一度評価しておこう
     _updateFormValid();
   }
 }
