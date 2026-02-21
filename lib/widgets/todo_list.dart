@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-import '../models/todo.dart'; // 作成したTodoクラス
-import '../widgets/todo_card.dart'; // 作成したTodoCardウィジェット
+import '../models/todo.dart'; // 表示に使うTodoデータ
+import '../widgets/todo_card.dart'; // 1件分の表示はTodoCardに任せる
 
 class TodoList extends StatefulWidget {
   const TodoList({super.key});
@@ -11,7 +12,7 @@ class TodoList extends StatefulWidget {
 }
 
 class TodoListState extends State<TodoList> {
-  // テスト用のTodoデータ（あとで追加画面から動的に増える想定）
+  // ここにTodoを追加して、リスト表示が増えることを確認しよう
   final List<Todo> todos = [
     Todo(
       title: '大学のレポート',
@@ -48,8 +49,9 @@ class TodoListState extends State<TodoList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: todos.length,
+      itemCount: todos.length, // 表示する件数をtodosに合わせよう
       itemBuilder: (context, index) {
+        // index番目のTodoを取り出して、TodoCardに渡して表示しよう
         return Padding(
           padding: const EdgeInsets.all(8.0), // カード同士がくっつかないよう余白をつけよう
           child: TodoCard(todo: todos[index]),
