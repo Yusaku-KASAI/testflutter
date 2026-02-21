@@ -69,6 +69,8 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                   // 入力チェック
                   if (value == null || value.isEmpty) {
                     return 'タイトルを入力してください';
+                  } else if (value.length > 20) {
+                    return '20文字以内で入力してください';
                   }
                   return null;
                 },
@@ -80,13 +82,17 @@ class AddTodoScreenState extends State<AddTodoScreen> {
                 controller: _detailController,
                 decoration: const InputDecoration(
                   labelText: 'タスクの詳細',
-                  hintText: '入力してください',
+                  hintText: '3行以内で入力してください',
                   border: OutlineInputBorder(),
                 ),
-                maxLines: 3, // 複数行入力可能
+                keyboardType: TextInputType.multiline, // 複数行入力用キーボード
+                maxLines: 3, // 最大3行まで表示
                 validator: (value) {
+                  // 入力チェック
                   if (value == null || value.isEmpty) {
                     return '詳細を入力してください';
+                  } else if (value.split('\n').length > 3) {
+                    return '3行以内で入力してください';
                   }
                   return null;
                 },
