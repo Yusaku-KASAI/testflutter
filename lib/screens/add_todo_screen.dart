@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../models/todo.dart';
+import '../services/todo_service.dart';
 
 class AddTodoScreen extends StatefulWidget {
-  const AddTodoScreen({super.key});
+  const AddTodoScreen({super.key, required this.todoService});
+
+  final TodoService todoService; // 保存できるようにTodoServiceを受け取ろう
 
   @override
   AddTodoScreenState createState() => AddTodoScreenState();
@@ -161,17 +164,27 @@ class AddTodoScreenState extends State<AddTodoScreen> {
     );
   }
 
-  // 入力チェック→Todo生成→前の画面へ返す、の流れを作ろう
-  void _saveTodo() {
+  // タスク作成処理
+  void _saveTodo() async {
     if (_formKey.currentState!.validate()) {
+      // 入力チェック
+      // 新しいTodoを作成
       Todo newTodo = Todo(
         title: _titleController.text,
         detail: _detailController.text,
         dueDate: _selectedDate!,
       );
 
-      // 作成したTodoを戻り値として渡そう（前画面で受け取れる）
-      Navigator.pop(context, newTodo);
+      // 既存リストを取得して追加する処理を追加  // ←追加
+      final todos = await widget.todoService.getTodos();
+      todos.add(newTodo);
+      await widget.todoService.saveTodos(todos);
+
+      // この画面がまだ非表示にならずに残ってるか確認
+      if (!mounted) return;
+
+      // 前の画面へ「更新したよ」とだけ知らせる
+      Navigator.pop(context, true); // ←変更
     }
   }
 
