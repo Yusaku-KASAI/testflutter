@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 
 import '../models/todo.dart'; // 表示に使うTodoデータ
 import '../widgets/todo_card.dart'; // 1件分の表示はTodoCardに任せる
