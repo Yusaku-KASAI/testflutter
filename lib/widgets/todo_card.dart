@@ -96,18 +96,7 @@ class _TodoCardState extends State<TodoCard>
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ── 左端：チェックアイコン
-          IconButton(
-            iconSize: 32,
-            icon: Icon(
-              widget.todo.isCompleted
-                  ? Icons.check_circle
-                  : Icons.radio_button_unchecked,
-              color: Colors.white,
-            ),
-            onPressed: widget.onToggle,
-          ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 16),
           // ── テキスト群
           Expanded(
             child: Column(
