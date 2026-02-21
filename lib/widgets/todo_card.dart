@@ -25,11 +25,14 @@ class TodoCard extends StatelessWidget {
             IconButton(
               // ❗️ IconButtonクラスを使用してみましょう
               // add
-              iconSize: 24,
-              icon: const Icon(Icons.radio_button_unchecked),
-              onPressed: () {
-                onToggle!();
-              },
+              iconSize: 32,
+              icon: Icon(
+                todo.isCompleted
+                    ? Icons.check_circle
+                    : Icons.radio_button_unchecked,
+                color: Colors.white,
+              ),
+              onPressed: onToggle,
             ),
             const SizedBox(width: 8),
             // ── テキスト群
@@ -41,11 +44,25 @@ class TodoCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(todo.title),
-                  SizedBox(height: 4),
-                  Text(todo.detail),
-                  SizedBox(height: 4),
-                  Text(todo.dueDate.toString()),
+                  Text(
+                    todo.title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    todo.detail,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  Text(
+                    DateFormat('M月d日(E)', 'ja').format(todo.dueDate),
+                    // dueDateを日本語表記に変換して表示しよう
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
                 ],
               ),
             ),
